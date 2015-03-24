@@ -1,0 +1,257 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MiCo.MiApp.DataReplication.ImportApi</name>
+    </assembly>
+    <members>
+        <member name="T:MiCo.MiApp.DataReplication.ImportApi.AuthenticationApi">
+            <summary>
+            AuthenticationApi encapsulates the key generation and password encryption routines required by the Mobile Replication server.
+            </summary>
+            \ingroup ImportAPI
+            
+        </member>
+        <member name="F:MiCo.MiApp.DataReplication.ImportApi.AuthenticationApi.CredentialService">
+            <summary>
+            The credential service
+            </summary>
+        </member>
+        <member name="F:MiCo.MiApp.DataReplication.ImportApi.AuthenticationApi._uri">
+            <summary>
+            The URI of the Mobile Replication server
+            </summary>
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.AuthenticationApi.#ctor(System.Uri)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MiCo.MiApp.DataReplication.ImportApi.AuthenticationApi"/> class.
+            </summary>
+            <param name="uri">The URI of the Mobile Replication server.</param>
+            <exception cref="T:System.ArgumentNullException">uri</exception>
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.AuthenticationApi.RegisterAndGetPublicKey">
+            <summary>
+            Registers the decryption key with the server, and retains the corresponding public key for later use.
+            </summary>
+            <returns>The public key that the client should use to encrypt sensitive data, plus an identifier that tells 
+            the server which encryption key was used.</returns>
+        </member>
+        <member name="T:MiCo.MiApp.DataReplication.ImportApi.BaseApi">
+            <summary>
+            Abstract class that defines common elements between the concrete classes in the Import API.
+            </summary>
+            \ingroup ImportAPI
+            
+        </member>
+        <member name="F:MiCo.MiApp.DataReplication.ImportApi.BaseApi.credentialService">
+            <summary>
+            The credential service
+            </summary>
+        </member>
+        <member name="F:MiCo.MiApp.DataReplication.ImportApi.BaseApi.encryptedPassword">
+            <summary>
+            The user's encrypted password
+            </summary>
+        </member>
+        <member name="F:MiCo.MiApp.DataReplication.ImportApi.BaseApi.uri">
+            <summary>
+            The URI of the Mobile Replication server
+            </summary>
+        </member>
+        <member name="F:MiCo.MiApp.DataReplication.ImportApi.BaseApi.userName">
+            <summary>
+            The user's username
+            </summary>
+        </member>
+        <member name="F:MiCo.MiApp.DataReplication.ImportApi.BaseApi.clientGuid">
+            <summary>
+            The client unique identifier supplied by the server in exchange for the client's private key
+            </summary>
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.BaseApi.#ctor(System.Uri,System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MiCo.MiApp.DataReplication.ImportApi.BaseApi"/> class.
+            </summary>
+            <param name="uri">The URI of the Mobile Replication server.</param>
+            <param name="userName">The user's username.</param>
+            <param name="clientGuid">The unique identifier supplied by the server in exchange for this user's private key.</param>
+            <param name="encryptedPassword">The user's encrypted password.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when userName is Empty or Null</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when clientGuid is Empty or Null</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when encryptedPassword is Empty or Null</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when uri is Empty or Null</exception>
+        </member>
+        <member name="T:MiCo.MiApp.DataReplication.ImportApi.DataApi">
+            <summary>
+            Implements methods to call the Mobile Replication Data API, to publish data into the Mobile Replication system.
+            </summary>
+            <remarks><see cref="N:MiCo.MiApp.DataReplication.ImportApi"/> methods supply encrypted credentials to the Mobile Replication server.
+            The encryption is based on a key previously communicated to the server using the <see cref="T:MiCo.MiApp.DataReplication.ImportApi.AuthenticationApi"/>.</remarks>
+            \ingroup ImportAPI
+            
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.DataApi.#ctor(System.Uri,System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MiCo.MiApp.DataReplication.ImportApi.DataApi"/> class.
+            </summary>
+            <param name="uri">The URI of the Mobile Replication server.</param>
+            <param name="userName">The user's username.</param>
+            <param name="clientGuid">The unique identifier of the encryption key previously sent to the server.</param>
+            <param name="encryptedPassword">The user's encrypted password.</param>
+            <seealso cref="T:MiCo.MiApp.DataReplication.ImportApi.AuthenticationApi"/>
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.DataApi.PutResourceData(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.Dictionary{System.String,System.Object}}})">
+            <summary>
+            Replaces all data rows for a particular resource.  The inbound data must be consistent with the resource's existing schema.
+            </summary>
+            <param name="resourceName">Name of the resource.</param>
+            <param name="customerName">Name of the customer owning the resource.</param>
+            <param name="tables">A dictionary associating entity names with a list of data rows.</param>
+            <returns>An HttpResponseMessage describing the server response.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when resourceName is Empty or Null</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when customerName is Empty or Null</exception>
+            <exception cref="T:System.ArgumentNullException">tables should not be empty;tables</exception>
+            <remarks>The <paramref name="tables"/> parameter contains a dictionary of row images by entity name.  It
+            represents the entire new state of the resource.  Any rows that exist on the server, but are not
+            included in this request, will be implicitly deleted by this request.
+            
+            <para>Each key in the dictionary is the name of an entity within this resource.</para>
+            <para>Each value within the dictionary is a list of row images.</para>
+            <para>Each row image is a dictionary mapping column names to column values.</para>
+            <para></para>
+            <para>The Mobile Replication server will test whether the row images differ from row images already on
+            the server, and will update only those rows that differ.</para>
+            </remarks>
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.DataApi.DeleteResourceData(System.String,System.String)">
+            <summary>
+            Deletes all data from the specified resource.  Does not destroy the resource itself or modify its schema.
+            </summary>
+            <param name="resourceName">Name of the resource.</param>
+            <param name="customerName">Name of the customer owning the resource.</param>
+            <returns>An HttpResponseMessage describing the server response.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when resourceName is Empty or Null</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when customerName is Empty or Null</exception>
+        </member>
+        <member name="T:MiCo.MiApp.DataReplication.ImportApi.EncryptPasswordResponse">
+            <summary>
+            <para>Encapsulates the information that client code requires to encrypt sensitive data for communication to the Mobile Replication server.</para>
+            <para>Instances of this class are returned by AuthenticationApi.RegisterDecryptionKey().</para>
+            </summary>
+            \ingroup ImportAPI
+            
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.EncryptPasswordResponse.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MiCo.MiApp.DataReplication.ImportApi.EncryptPasswordResponse"/> class.
+            </summary>
+            <param name="clientKey">The client key, which identifies to the server which encryption key is used.</param>
+            <param name="publicKey">The public key corresponding to the clientKey identifier.</param>
+        </member>
+        <member name="P:MiCo.MiApp.DataReplication.ImportApi.EncryptPasswordResponse.ClientKey">
+            <summary>
+            The client key identifier.
+            </summary>
+            <value>The client key.</value>
+        </member>
+        <member name="P:MiCo.MiApp.DataReplication.ImportApi.EncryptPasswordResponse.PublicKey">
+            <summary>
+            The public key corresponding to ClientKey.
+            </summary>
+            <value>The public key.</value>
+        </member>
+        <member name="T:MiCo.MiApp.DataReplication.ImportApi.Log">
+            <summary>
+            Logging methods.
+            </summary>
+            <seealso cref="T:NLog.LogManager"/>
+            \ingroup ImportAPI
+            
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.Log.#cctor">
+            <summary>
+            Gets the current Logger
+            </summary>
+        </member>
+        <member name="P:MiCo.MiApp.DataReplication.ImportApi.Log.Instance">
+            <summary>
+            The one and only Logger instance
+            </summary>
+        </member>
+        <member name="T:MiCo.MiApp.DataReplication.ImportApi.NamespaceDoc">
+            <summary>
+            <para><see cref="N:MiCo.MiApp.DataReplication.ImportApi"/> provides methods for server-side code to publish resources and data into
+            the Mobile Replication system from external sources.</para>
+            <para></para>
+            <para>The ImportApi simplifies the implementation of server-side adapter code
+            by encapsulating the handling of credentials, credential encryption and authentication tokens.</para>
+            </summary>
+            \defgroup ImportAPI
+        </member>
+        <member name="T:MiCo.MiApp.DataReplication.ImportApi.ResourceSchemaApi">
+            <summary>
+            Implements methods to call the Mobile Replication Schema API, to publish resource schema into the Mobile Replication system.
+            </summary>
+            \ingroup ImportAPI
+            
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.ResourceSchemaApi.#ctor(System.Uri,System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MiCo.MiApp.DataReplication.ImportApi.ResourceSchemaApi"/> class.
+            </summary>
+            <param name="uri">The URI of the Mobile Replication server.</param>
+            <param name="userName">User's username.</param>
+            <param name="clientGuid">The unique identifier of the encryption key previously sent to the server.</param>
+            <param name="encryptedPassword">The user's encrypted password.</param>
+            <seealso cref="T:MiCo.MiApp.DataReplication.ImportApi.AuthenticationApi"/>
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.ResourceSchemaApi.DeleteResourceSchema(System.String,System.String)">
+            <summary>
+            Deletes the specified resource, including its schema and all resource data.
+            </summary>
+            <param name="resourceName">Name of the resource.</param>
+            <param name="customerName">Name of the customer owning the resource.</param>
+            <returns>An HttpResponseMessage describing the server response.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when resourceName is Empty or Null</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when customerName is Empty or Null</exception>
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.ResourceSchemaApi.PutResourceSchema(System.String,System.String,MiCo.MiApp.DataReplication.Messages.ResourceSchema)">
+            <summary>
+            Defines a resource and its schema.
+            </summary>
+            <param name="resourceName">Name of the resource.</param>
+            <param name="customerName">Name of the customer owning the resource.</param>
+            <param name="schema">The resource schema.</param>
+            <returns>An HttpResponseMessage describing the server response.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when resourceName is Empty or Null</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when customerName is Empty or Null</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when schema is Null</exception>
+            <remarks>
+            <para>This method creates a resource and defines its schema.</para>
+            <para>Resources are designed to have fixed schema.  Once a resource is created, in the general case
+            its schema cannot be modified.  This restriction is in place to prevent unexpected failures in client
+            applications that already have a local cache of that resource with its original schema.</para>
+            <para>Because of this, calling this method on an existing resource is not guaranteed to succeed.</para>
+            <para>This method will however succeed when called against an existing resource if one of the following is true:</para>
+            <list type="bullet">
+            <item><term>Schema Unmodified</term><description>If this method is called on an existing resource with no changes to the schema,
+            then the method call will succeed and will make no changes.</description></item>
+            <item><term>No Data</term><description>If this method is called on an existing resource that has no data, then the
+            server will replace the existing resource schema with the new schema.</description></item>
+            </list>
+            <para>If none of the conditions above is met, a resource must be explicitly deleted and re-created
+            in order to modify its schema.  Mobile Replication client apps respond to this scenario by dropping and re-creating their cache
+            of the resource.</para>
+            </remarks>
+        </member>
+        <member name="M:MiCo.MiApp.DataReplication.ImportApi.ResourceSchemaApi.GetResourceSchema(System.String,System.String)">
+            <summary>
+            Gets the schema for a particular resource.
+            </summary>
+            <param name="resourceName">Name of the resource.</param>
+            <param name="customerName">Name of the customer owning the resource.</param>
+            <returns>The resource's <see cref="T:MiCo.MiApp.DataReplication.Messages.ResourceSchema"/>.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when resourceName is Empty or Null</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when customerName is Empty or Null</exception>
+        </member>
+    </members>
+</doc>
